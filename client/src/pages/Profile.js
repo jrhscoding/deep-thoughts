@@ -1,20 +1,19 @@
 import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 
+import ThoughtForm from '../components/ThoughtForm';
 import ThoughtList from '../components/ThoughtList';
 import FriendList from '../components/FriendList';
 
-import { ADD_FRIEND } from '../utils/mutations';
 import { useQuery, useMutation } from '@apollo/client';
 import { QUERY_USER, QUERY_ME } from '../utils/queries';
+import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth';
 
-import ThoughtForm from '../components/ThoughtForm';
-
 const Profile = (props) => {
-  const [addFriend] = useMutation(ADD_FRIEND);
   const { username: userParam } = useParams();
 
+  const [addFriend] = useMutation(ADD_FRIEND);
   const { loading, data } = useQuery(userParam ? QUERY_USER : QUERY_ME, {
     variables: { username: userParam },
   });
@@ -23,18 +22,8 @@ const Profile = (props) => {
 
   // navigate to personal profile page if username is yours
   if (Auth.loggedIn() && Auth.getProfile().data.username === userParam) {
-    return <Navigate to="/profile" />;
+    return <Navigate to="/profile:username" />;
   }
-
-  const handleClick = async () => {
-    try {
-      await addFriend({
-        variables: { id: user._id }
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -48,6 +37,16 @@ const Profile = (props) => {
       </h4>
     );
   }
+
+  const handleClick = async () => {
+    try {
+      await addFriend({
+        variables: { id: user._id },
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div>
